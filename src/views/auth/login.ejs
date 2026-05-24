@@ -1,0 +1,62 @@
+<%- include('../partials/header', { title: 'Login Petugas' }) %>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="card-title h4 mb-1">Login Petugas</h1>
+          <p class="text-muted mb-4">Masuk untuk mengakses dashboard buku tamu.</p>
+
+          <% if (typeof error !== 'undefined' && error !== null) { %>
+            <div class="alert alert-danger" role="alert">
+              <%= error %>
+            </div>
+          <% } %>
+
+          <form action="/auth/login" method="POST">
+
+            <!-- Username -->
+            <div class="mb-3">
+              <label for="username" class="form-label fw-semibold">Nama Pengguna</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-control"
+                placeholder="Masukkan nama pengguna"
+                autocomplete="username"
+                required
+              >
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+              <label for="password" class="form-label fw-semibold">Kata Sandi</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-control"
+                placeholder="Masukkan kata sandi"
+                autocomplete="current-password"
+                required
+              >
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Masuk
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

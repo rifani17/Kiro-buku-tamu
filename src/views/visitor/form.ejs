@@ -1,0 +1,116 @@
+<%- include('../partials/header', { title: 'Form Tamu' }) %>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="card-title h4 mb-1">Buku Tamu Digital</h1>
+          <p class="text-muted mb-4">Silakan isi data kunjungan Anda dengan lengkap.</p>
+
+          <form action="/visits" method="POST" novalidate>
+
+            <!-- Nama Lengkap -->
+            <div class="mb-3">
+              <label for="visitor_name" class="form-label fw-semibold">
+                Nama Lengkap <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                id="visitor_name"
+                name="visitor_name"
+                class="form-control<%= errors && errors.visitor_name ? ' is-invalid' : '' %>"
+                value="<%= typeof values !== 'undefined' && values.visitor_name ? values.visitor_name : '' %>"
+                placeholder="Masukkan nama lengkap Anda"
+                maxlength="255"
+              >
+              <% if (errors && errors.visitor_name) { %>
+                <div class="invalid-feedback"><%= errors.visitor_name %></div>
+              <% } %>
+            </div>
+
+            <!-- Instansi / Asal -->
+            <div class="mb-3">
+              <label for="institution" class="form-label fw-semibold">
+                Instansi / Asal <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                id="institution"
+                name="institution"
+                class="form-control<%= errors && errors.institution ? ' is-invalid' : '' %>"
+                value="<%= typeof values !== 'undefined' && values.institution ? values.institution : '' %>"
+                placeholder="Masukkan instansi atau asal Anda"
+                maxlength="255"
+              >
+              <% if (errors && errors.institution) { %>
+                <div class="invalid-feedback"><%= errors.institution %></div>
+              <% } %>
+            </div>
+
+            <!-- Keperluan -->
+            <div class="mb-3">
+              <label for="purpose" class="form-label fw-semibold">
+                Keperluan <span class="text-danger">*</span>
+              </label>
+              <textarea
+                id="purpose"
+                name="purpose"
+                class="form-control<%= errors && errors.purpose ? ' is-invalid' : '' %>"
+                rows="3"
+                placeholder="Jelaskan keperluan kunjungan Anda"
+                maxlength="500"
+              ><%= typeof values !== 'undefined' && values.purpose ? values.purpose : '' %></textarea>
+              <% if (errors && errors.purpose) { %>
+                <div class="invalid-feedback"><%= errors.purpose %></div>
+              <% } %>
+            </div>
+
+            <!-- Tujuan Kunjungan -->
+            <div class="mb-4">
+              <label for="employee_id" class="form-label fw-semibold">
+                Tujuan Kunjungan <span class="text-danger">*</span>
+              </label>
+              <select
+                id="employee_id"
+                name="employee_id"
+                class="form-select<%= errors && errors.employee_id ? ' is-invalid' : '' %>"
+              >
+                <option value="" disabled
+                  <%= !(typeof values !== 'undefined' && values.employee_id) ? 'selected' : '' %>>
+                  -- Pilih pegawai yang dituju --
+                </option>
+                <% employees.forEach(function(emp) { %>
+                  <option
+                    value="<%= emp.id %>"
+                    <%= (typeof values !== 'undefined' && String(values.employee_id) === String(emp.id)) ? 'selected' : '' %>
+                  >
+                    <%= emp.name %> — <%= emp.department %>
+                  </option>
+                <% }); %>
+              </select>
+              <% if (errors && errors.employee_id) { %>
+                <div class="invalid-feedback"><%= errors.employee_id %></div>
+              <% } %>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Daftar Kunjungan
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <p class="text-center text-muted mt-3 small">
+        <span class="text-danger">*</span> Kolom wajib diisi
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

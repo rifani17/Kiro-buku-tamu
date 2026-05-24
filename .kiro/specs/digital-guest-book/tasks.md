@@ -35,8 +35,8 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Jalankan migrasi dan seed saat aplikasi pertama kali dijalankan jika tabel belum ada
     - _Persyaratan: 2.7, 5.4_
 
-- [ ] 3. Implementasi lapisan model
-  - [ ] 3.1 Buat `Visit` model (`src/models/visitModel.js`)
+- [x] 3. Implementasi lapisan model
+  - [x] 3.1 Buat `Visit` model (`src/models/visitModel.js`)
     - Fungsi `insertVisit(data)`: INSERT kunjungan baru, kembalikan ID yang dihasilkan
     - Fungsi `getVisitById(id)`: SELECT kunjungan berdasarkan ID dengan JOIN ke tabel employees
     - Fungsi `getVisitsByDate(date)`: SELECT semua kunjungan untuk tanggal tertentu (format YYYY-MM-DD)
@@ -58,12 +58,12 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Verifikasi: percobaan mengubah status 'Selesai' kembali ke 'Hadir' ditolak
     - File: `tests/unit/statusTransition.test.js`
 
-  - [ ] 3.4 Buat `Employee` model (`src/models/employeeModel.js`)
+  - [x] 3.4 Buat `Employee` model (`src/models/employeeModel.js`)
     - Fungsi `getAllEmployees()`: SELECT semua pegawai (untuk dropdown form tamu)
     - Fungsi `getEmployeeById(id)`: SELECT pegawai berdasarkan ID (untuk notifikasi WA)
     - _Persyaratan: 1.1, 5.1, 5.4_
 
-  - [ ] 3.5 Buat `User` model (`src/models/userModel.js`)
+  - [x] 3.5 Buat `User` model (`src/models/userModel.js`)
     - Fungsi `getUserByUsername(username)`: SELECT user berdasarkan username (untuk autentikasi)
     - Fungsi `hashPassword(plaintext)`: Bungkus `bcrypt.hash` dengan cost factor 12
     - _Persyaratan: 2.3, 2.7_
@@ -75,8 +75,8 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Verifikasi: hash berbeda dari plaintext, `bcrypt.compare(plain, hash) === true`, `bcrypt.getRounds(hash) >= 10`
     - File: `tests/unit/auth.test.js`
 
-- [ ] 4. Implementasi validasi form dan filter data
-  - [ ] 4.1 Buat modul validasi form tamu (`src/utils/validation.js`)
+- [x] 4. Implementasi validasi form dan filter data
+  - [x] 4.1 Buat modul validasi form tamu (`src/utils/validation.js`)
     - Fungsi `validateVisitForm(input)`: periksa visitor_name, institution, purpose, employee_id tidak kosong/whitespace
     - Kembalikan `{ valid: boolean, errors: { field: string|null } }`
     - _Persyaratan: 1.2, 1.3_
@@ -88,7 +88,7 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Verifikasi: `validateVisitForm(input)` mengembalikan `{ valid: false }` dengan field bermasalah teridentifikasi
     - File: `tests/unit/validation.test.js`
 
-  - [ ] 4.3 Buat modul filter pencarian dan tanggal (`src/utils/filters.js`)
+  - [x] 4.3 Buat modul filter pencarian dan tanggal (`src/utils/filters.js`)
     - Fungsi `filterByKeyword(visits, keyword)`: filter array kunjungan berdasarkan visitor_name atau employee_name
     - Fungsi `filterByDate(visits, date)`: filter array kunjungan berdasarkan tanggal check_in_at
     - _Persyaratan: 3.5, 3.6_
@@ -107,23 +107,23 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Verifikasi: semua hasil memiliki check_in_at pada tanggal yang dipilih; tidak ada entri dari tanggal lain
     - File: `tests/unit/dateFilter.test.js`
 
-- [ ] 5. Checkpoint — Pastikan semua test lapisan model dan utilitas lulus
+- [x] 5. Checkpoint — Pastikan semua test lapisan model dan utilitas lulus
   - Jalankan `npm test` dan pastikan semua unit test dan PBT yang sudah ditulis lulus
   - Tanyakan kepada pengguna jika ada pertanyaan sebelum melanjutkan
 
-- [ ] 6. Implementasi middleware dan layanan
-  - [ ] 6.1 Buat middleware autentikasi (`src/middleware/auth.js`)
+- [x] 6. Implementasi middleware dan layanan
+  - [x] 6.1 Buat middleware autentikasi (`src/middleware/auth.js`)
     - Fungsi `requireAuth(req, res, next)`: periksa `req.session.userId`, redirect ke `/auth/login` jika tidak ada
     - _Persyaratan: 2.1, 2.5_
 
-  - [ ] 6.2 Buat SSE Manager (`src/services/sseManager.js`)
+  - [x] 6.2 Buat SSE Manager (`src/services/sseManager.js`)
     - Fungsi `addClient(res)`: daftarkan koneksi SSE baru ke daftar klien aktif
     - Fungsi `removeClient(res)`: hapus koneksi SSE yang terputus
     - Fungsi `broadcast(eventData)`: kirim event ke semua klien terdaftar dengan format SSE (`data: ...\n\n`)
     - Tangani event `new-visit` dan `status-update`
     - _Persyaratan: 3.3, 6.3_
 
-  - [ ] 6.3 Buat Notification Service (`src/services/notificationService.js`)
+  - [x] 6.3 Buat Notification Service (`src/services/notificationService.js`)
     - Fungsi `formatNotificationMessage(visit)`: format string pesan WA dengan visitor_name, institution, purpose, check_in_at
     - Fungsi `sendVisitNotification(visit, employee)`: kirim HTTP POST ke WA Gateway, catat hasil ke log
     - Pastikan fungsi TIDAK melempar exception — tangani semua error secara graceful dengan `console.warn`
@@ -143,59 +143,59 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Verifikasi: data kunjungan tetap tersimpan di database meskipun `sendVisitNotification` melempar error
     - File: `tests/unit/notification.test.js`
 
-- [ ] 7. Implementasi controller dan routing
-  - [ ] 7.1 Buat Auth Controller (`src/controllers/authController.js`)
+- [x] 7. Implementasi controller dan routing
+  - [x] 7.1 Buat Auth Controller (`src/controllers/authController.js`)
     - Fungsi `showLogin(req, res)`: render `views/auth/login.ejs`
     - Fungsi `processLogin(req, res)`: ambil user dari DB, `bcrypt.compare`, buat `req.session.userId`, redirect ke `/dashboard`
     - Fungsi `logout(req, res)`: hancurkan sesi, redirect ke `/auth/login`
     - _Persyaratan: 2.2, 2.3, 2.4, 2.6_
 
-  - [ ] 7.2 Buat Visitor Controller (`src/controllers/visitorController.js`)
+  - [x] 7.2 Buat Visitor Controller (`src/controllers/visitorController.js`)
     - Fungsi `showForm(req, res)`: ambil semua pegawai dari DB, render `views/visitor/form.ejs`
     - Fungsi `submitForm(req, res)`: validasi input, simpan ke DB, kirim notifikasi WA (async), broadcast SSE, redirect ke konfirmasi
     - Fungsi `showConfirm(req, res)`: render `views/visitor/confirm.ejs`
     - Tangani kegagalan DB dengan render error dan `console.error`
     - _Persyaratan: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.3, 5.1_
 
-  - [ ] 7.3 Buat Dashboard Controller (`src/controllers/dashboardController.js`)
+  - [x] 7.3 Buat Dashboard Controller (`src/controllers/dashboardController.js`)
     - Fungsi `index(req, res)`: ambil kunjungan hari ini dari DB, render `views/dashboard/index.ejs`
     - Fungsi `getVisits(req, res)`: ambil kunjungan dengan filter tanggal dan/atau keyword, kembalikan JSON
     - Fungsi `updateStatus(req, res)`: update status kunjungan ke 'Selesai', broadcast SSE `status-update`, kembalikan JSON
     - _Persyaratan: 3.1, 3.2, 3.4, 3.5, 3.6, 6.1, 6.2, 6.3_
 
-  - [ ] 7.4 Buat file routing (`src/routes/index.js`)
+  - [x] 7.4 Buat file routing (`src/routes/index.js`)
     - Daftarkan semua route sesuai tabel routing di design.md
     - Terapkan middleware `requireAuth` pada route `/dashboard/*` dan `/auth/logout`
     - Daftarkan route SSE: `GET /dashboard/events` → `sseManager.addClient`
     - _Persyaratan: 2.1, 2.5_
 
-  - [ ] 7.5 Hubungkan router ke `src/app.js`
+  - [x] 7.5 Hubungkan router ke `src/app.js`
     - Import dan gunakan router di app.js
     - Tambahkan error handler global (500) dan handler 404
     - _Persyaratan: 4.3_
 
-- [ ] 8. Implementasi tampilan (Views)
-  - [ ] 8.1 Buat partial views (`src/views/partials/`)
+- [x] 8. Implementasi tampilan (Views)
+  - [x] 8.1 Buat partial views (`src/views/partials/`)
     - Buat `header.ejs`: tag HTML head, link CSS (Bootstrap CDN atau stylesheet lokal), meta charset/viewport
     - Buat `footer.ejs`: penutup tag HTML
 
-  - [ ] 8.2 Buat halaman form tamu (`src/views/visitor/form.ejs`)
+  - [x] 8.2 Buat halaman form tamu (`src/views/visitor/form.ejs`)
     - Form dengan field: nama lengkap, instansi/asal, keperluan, dropdown tujuan kunjungan (dari data pegawai)
     - Tampilkan pesan error per field jika validasi gagal (gunakan data `errors` dari controller)
     - Pertahankan nilai yang sudah diisi saat form dikembalikan karena error
     - _Persyaratan: 1.1, 1.3_
 
-  - [ ] 8.3 Buat halaman konfirmasi (`src/views/visitor/confirm.ejs`)
+  - [x] 8.3 Buat halaman konfirmasi (`src/views/visitor/confirm.ejs`)
     - Tampilkan pesan sukses kepada pengunjung
     - Tampilkan ringkasan data kunjungan yang baru didaftarkan
     - _Persyaratan: 1.5_
 
-  - [ ] 8.4 Buat halaman login (`src/views/auth/login.ejs`)
+  - [x] 8.4 Buat halaman login (`src/views/auth/login.ejs`)
     - Form dengan field username dan password
     - Tampilkan pesan error jika kredensial salah
     - _Persyaratan: 2.2, 2.4_
 
-  - [ ] 8.5 Buat halaman dashboard (`src/views/dashboard/index.ejs`)
+  - [x] 8.5 Buat halaman dashboard (`src/views/dashboard/index.ejs`)
     - Tampilkan jumlah total pengunjung hari ini di bagian atas
     - Tabel daftar kunjungan dengan kolom: no, nama, instansi, keperluan, tujuan, waktu masuk, status, aksi
     - Input filter tanggal dan input pencarian keyword
@@ -204,27 +204,27 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Script JavaScript inline untuk: koneksi SSE (`EventSource`), update tabel saat event `new-visit` diterima, update baris saat event `status-update` diterima, AJAX untuk filter dan update status tanpa reload halaman
     - _Persyaratan: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 6.1, 6.3_
 
-- [ ] 9. Checkpoint — Pastikan semua test lulus dan aplikasi dapat dijalankan
+- [x] 9. Checkpoint — Pastikan semua test lulus dan aplikasi dapat dijalankan
   - Jalankan `npm test` dan pastikan semua test lulus
   - Verifikasi aplikasi dapat dijalankan dengan `npm run dev` tanpa error
   - Tanyakan kepada pengguna jika ada pertanyaan sebelum melanjutkan
 
-- [ ] 10. Implementasi integration test
-  - [ ] 10.1 Tulis integration test alur registrasi tamu (`tests/integration/visitorFlow.test.js`)
+- [x] 10. Implementasi integration test
+  - [x] 10.1 Tulis integration test alur registrasi tamu (`tests/integration/visitorFlow.test.js`)
     - Test: POST `/visits` dengan data valid → status 302 redirect ke `/visits/confirm`
     - Test: POST `/visits` dengan field kosong → status 200 dengan pesan error
     - Test: POST `/visits` valid → data tersimpan di DB dengan status 'Hadir'
     - Test: POST `/visits` valid → SSE broadcast dipanggil
     - _Persyaratan: 1.2, 1.3, 1.4, 1.5, 1.6_
 
-  - [ ] 10.2 Tulis integration test alur autentikasi (`tests/integration/authFlow.test.js`)
+  - [x] 10.2 Tulis integration test alur autentikasi (`tests/integration/authFlow.test.js`)
     - Test: POST `/auth/login` dengan kredensial valid → redirect ke `/dashboard`
     - Test: POST `/auth/login` dengan kredensial salah → render halaman login dengan pesan error
     - Test: GET `/dashboard` tanpa sesi → redirect ke `/auth/login`
     - Test: POST `/auth/logout` dengan sesi aktif → sesi dihapus, redirect ke `/auth/login`
     - _Persyaratan: 2.1, 2.3, 2.4, 2.5, 2.6_
 
-  - [ ] 10.3 Tulis integration test alur dashboard (`tests/integration/dashboardFlow.test.js`)
+  - [x] 10.3 Tulis integration test alur dashboard (`tests/integration/dashboardFlow.test.js`)
     - Test: GET `/dashboard` dengan sesi valid → render halaman dashboard dengan data hari ini
     - Test: GET `/dashboard/visits?date=YYYY-MM-DD` → kembalikan JSON kunjungan untuk tanggal tersebut
     - Test: GET `/dashboard/visits?keyword=xxx` → kembalikan JSON kunjungan yang cocok
@@ -232,7 +232,7 @@ Implementasi dilakukan secara bertahap mengikuti pola MVC dengan Node.js + Expre
     - Test: PATCH `/dashboard/visits/:id/status` tanpa sesi → redirect ke `/auth/login`
     - _Persyaratan: 3.1, 3.2, 3.5, 3.6, 6.1, 6.2, 6.3_
 
-- [ ] 11. Checkpoint akhir — Pastikan semua test lulus
+- [~] 11. Checkpoint akhir — Pastikan semua test lulus
   - Jalankan `npm test` dan pastikan seluruh test suite (unit, PBT, integration) lulus
   - Tanyakan kepada pengguna jika ada pertanyaan atau penyesuaian yang diperlukan
 

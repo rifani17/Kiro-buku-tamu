@@ -1,0 +1,325 @@
+<%- include('../partials/header', { title: 'Dashboard Petugas' }) %>
+
+<div class="container-fluid py-4">
+
+  <!-- Header Bar -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 mb-0">Dashboard Petugas</h1>
+    <form action="/auth/logout" method="POST">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">
+        Keluar
+      </button>
+    </form>
+  </div>
+
+  <!-- Total Pengunjung Hari Ini -->
+  <div class="row mb-4">
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+      <div class="card border-primary">
+        <div class="card-body">
+          <p class="text-muted small mb-1">Total Pengunjung Hari Ini</p>
+          <h2 class="mb-0 text-primary" id="total-today"><%= totalToday %></h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-sm-6 col-md-4">
+          <label for="filter-date" class="form-label fw-semibold">Tanggal</label>
+          <input
+            type="date"
+            id="filter-date"
+            class="form-control"
+            value="<%= today %>"
+          >
+        </div>
+        <div class="col-12 col-sm-6 col-md-5">
+          <label for="filter-keyword" class="form-label fw-semibold">Cari</label>
+          <input
+            type="text"
+            id="filter-keyword"
+            class="form-control"
+            placeholder="Cari nama atau tujuan kunjungan..."
+          >
+        </div>
+        <div class="col-12 col-md-3">
+          <button type="button" id="btn-filter" class="btn btn-primary w-100">
+            Terapkan Filter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabel Kunjungan -->
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered mb-0" id="visits-table">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="text-center" style="width: 50px;">No</th>
+              <th scope="col">Nama</th>
+              <th scope="col">Instansi</th>
+              <th scope="col">Keperluan</th>
+              <th scope="col">Tujuan</th>
+              <th scope="col">Waktu Masuk</th>
+              <th scope="col" class="text-center">Status</th>
+              <th scope="col" class="text-center" style="width: 110px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="visits-tbody">
+            <% if (visits && visits.length > 0) { %>
+              <% visits.forEach(function(visit, index) { %>
+                <tr id="row-<%= visit.id %>">
+                  <td class="text-center"><%= index + 1 %></td>
+                  <td><%= visit.visitor_name %></td>
+                  <td><%= visit.institution %></td>
+                  <td><%= visit.purpose %></td>
+                  <td><%= visit.employee_name %></td>
+                  <td><%= visit.check_in_at %></td>
+                  <td class="text-center">
+                    <span class="badge <%= visit.status === 'Hadir' ? 'bg-success' : 'bg-secondary' %> status-badge">
+                      <%= visit.status %>
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <% if (visit.status === 'Hadir') { %>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-warning btn-selesai"
+                        data-visit-id="<%= visit.id %>"
+                      >
+                        Selesai
+                      </button>
+                    <% } else { %>
+                      <button type="button" class="btn btn-sm btn-secondary" disabled>
+                        Selesai
+                      </button>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr id="empty-row">
+                <td colspan="8" class="text-center text-muted py-4">
+                  Belum ada data kunjungan untuk tanggal ini.
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ─── Helpers ────────────────────────────────────────────────────────────────
+
+  function formatDateTime(isoString) {
+    if (!isoString) return '-';
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    return d.toLocaleString('id-ID', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+  }
+
+  function buildRow(visit, rowNumber) {
+    const isHadir = visit.status === 'Hadir';
+    const badgeClass = isHadir ? 'bg-success' : 'bg-secondary';
+    const btnHtml = isHadir
+      ? `<button type="button" class="btn btn-sm btn-warning btn-selesai" data-visit-id="${visit.id}">Selesai</button>`
+      : `<button type="button" class="btn btn-sm btn-secondary" disabled>Selesai</button>`;
+
+    return `
+      <tr id="row-${visit.id}">
+        <td class="text-center">${rowNumber}</td>
+        <td>${escapeHtml(visit.visitor_name)}</td>
+        <td>${escapeHtml(visit.institution)}</td>
+        <td>${escapeHtml(visit.purpose)}</td>
+        <td>${escapeHtml(visit.employee_name || '')}</td>
+        <td>${escapeHtml(visit.check_in_at || '')}</td>
+        <td class="text-center">
+          <span class="badge ${badgeClass} status-badge">${escapeHtml(visit.status)}</span>
+        </td>
+        <td class="text-center">${btnHtml}</td>
+      </tr>`;
+  }
+
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function updateRowStatus(visitId, visit) {
+    const row = document.getElementById('row-' + visitId);
+    if (!row) return;
+
+    const badge = row.querySelector('.status-badge');
+    if (badge) {
+      badge.textContent = visit.status;
+      badge.className = 'badge status-badge ' + (visit.status === 'Hadir' ? 'bg-success' : 'bg-secondary');
+    }
+
+    const btn = row.querySelector('.btn-selesai');
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.remove('btn-warning');
+      btn.classList.add('btn-secondary');
+    }
+  }
+
+  // ─── SSE ────────────────────────────────────────────────────────────────────
+
+  const evtSource = new EventSource('/dashboard/events');
+
+  evtSource.addEventListener('message', function(e) {
+    let data;
+    try {
+      data = JSON.parse(e.data);
+    } catch (err) {
+      return;
+    }
+
+    if (data.type === 'new-visit') {
+      const visit = data.visit;
+      const tbody = document.getElementById('visits-tbody');
+
+      // Remove empty-state row if present
+      const emptyRow = document.getElementById('empty-row');
+      if (emptyRow) emptyRow.remove();
+
+      // Count existing rows to determine row number
+      const existingRows = tbody.querySelectorAll('tr[id^="row-"]');
+      const rowNumber = existingRows.length + 1;
+
+      // Prepend new row
+      tbody.insertAdjacentHTML('afterbegin', buildRow(visit, rowNumber));
+
+      // Re-number all rows
+      renumberRows();
+
+      // Update total count
+      const totalEl = document.getElementById('total-today');
+      if (totalEl) {
+        totalEl.textContent = parseInt(totalEl.textContent || '0', 10) + 1;
+      }
+    }
+
+    if (data.type === 'status-update') {
+      updateRowStatus(data.visit.id, data.visit);
+    }
+  });
+
+  evtSource.addEventListener('error', function() {
+    // Silent — browser will auto-reconnect
+  });
+
+  function renumberRows() {
+    const rows = document.querySelectorAll('#visits-tbody tr[id^="row-"]');
+    rows.forEach(function(row, idx) {
+      const firstCell = row.querySelector('td:first-child');
+      if (firstCell) firstCell.textContent = idx + 1;
+    });
+  }
+
+  // ─── Filter ─────────────────────────────────────────────────────────────────
+
+  let filterDebounceTimer = null;
+
+  function applyFilter() {
+    const date = document.getElementById('filter-date').value;
+    const keyword = document.getElementById('filter-keyword').value;
+
+    const params = new URLSearchParams();
+    if (date) params.set('date', date);
+    if (keyword) params.set('keyword', keyword);
+
+    fetch('/dashboard/visits?' + params.toString(), {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(function(res) {
+        if (!res.ok) throw new Error('Gagal mengambil data');
+        return res.json();
+      })
+      .then(function(json) {
+        const tbody = document.getElementById('visits-tbody');
+        tbody.innerHTML = '';
+
+        if (!json.visits || json.visits.length === 0) {
+          tbody.innerHTML = '<tr id="empty-row"><td colspan="8" class="text-center text-muted py-4">Belum ada data kunjungan untuk filter ini.</td></tr>';
+          return;
+        }
+
+        json.visits.forEach(function(visit, idx) {
+          tbody.insertAdjacentHTML('beforeend', buildRow(visit, idx + 1));
+        });
+      })
+      .catch(function(err) {
+        console.error('Filter error:', err);
+      });
+  }
+
+  document.getElementById('btn-filter').addEventListener('click', applyFilter);
+
+  document.getElementById('filter-date').addEventListener('change', applyFilter);
+
+  document.getElementById('filter-keyword').addEventListener('input', function() {
+    clearTimeout(filterDebounceTimer);
+    filterDebounceTimer = setTimeout(applyFilter, 400);
+  });
+
+  // ─── Tombol Selesai ─────────────────────────────────────────────────────────
+
+  document.getElementById('visits-tbody').addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-selesai');
+    if (!btn) return;
+
+    const visitId = btn.dataset.visitId;
+    if (!visitId) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
+
+    fetch('/dashboard/visits/' + visitId + '/status', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+      .then(function(res) {
+        if (!res.ok) throw new Error('Gagal memperbarui status');
+        return res.json();
+      })
+      .then(function(json) {
+        if (json.success && json.visit) {
+          updateRowStatus(visitId, json.visit);
+        } else {
+          // Revert button state on unexpected response
+          btn.disabled = false;
+          btn.textContent = 'Selesai';
+        }
+      })
+      .catch(function(err) {
+        console.error('Update status error:', err);
+        btn.disabled = false;
+        btn.textContent = 'Selesai';
+      });
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -43,22 +43,31 @@ app.use(
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ── Routes ────────────────────────────────────────────────────────────────────
-// Routes will be wired in a later task (task 7.4 / 7.5).
-// Placeholder: a simple health-check so the server can start without errors.
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+const router = require('./routes/index');
+app.use(router);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {
-  res.status(404).send('404 – Halaman tidak ditemukan');
+  if (req.accepts('html')) {
+    return res.status(404).render('error', {
+      status: 404,
+      message: 'Halaman tidak ditemukan',
+    });
+  }
+  res.status(404).json({ error: 'Halaman tidak ditemukan' });
 });
 
 // ── Global error handler ──────────────────────────────────────────────────────
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
-  res.status(500).send('500 – Terjadi kesalahan pada server');
+  if (req.accepts('html')) {
+    return res.status(500).render('error', {
+      status: 500,
+      message: 'Terjadi kesalahan pada server',
+    });
+  }
+  res.status(500).json({ error: 'Terjadi kesalahan pada server' });
 });
 
 // ── Start server (only when run directly, not when required by tests) ─────────
