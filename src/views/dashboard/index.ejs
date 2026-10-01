@@ -6,6 +6,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h4 mb-0">Dashboard Petugas</h1>
     <form action="/auth/logout" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button type="submit" class="btn btn-outline-secondary btn-sm">
         Keluar
       </button>
@@ -298,7 +299,8 @@
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'X-CSRF-Token': '<%= csrfToken %>'
       }
     })
       .then(function(res) {

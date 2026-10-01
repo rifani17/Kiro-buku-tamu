@@ -3,6 +3,8 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const csrf = require('csurf');
+const rateLimit = require('express-rate-limit');
 const config = require('./config');
 const db = require('./database');
 const runMigration = require('./migrations/001_initial_schema');
@@ -18,6 +20,9 @@ try {
 
 const app = express();
 
+// ── Trust proxy (for rate limiting behind reverse proxy) ──────────────────────
+app.set('trust proxy', 1);
+
 // ── View engine ──────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -25,6 +30,23 @@ app.set('views', path.join(__dirname, 'views'));
 // ── Body parsing middleware ───────────────────────────────────────────────────
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// ── Rate limiting ─────────────────────────────────────────────────────────────
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: { error: 'Terlalu banyak percobaan login. Coba lagi nanti.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const visitLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // limit each IP to 10 requests per minute
+  message: { error: 'Terlalu banyak permintaan. Coba lagi sebentar.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // ── Session middleware ────────────────────────────────────────────────────────
 app.use(
@@ -34,10 +56,47 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // only secure in production
+      sameSite: 'lax',
       maxAge: 8 * 60 * 60 * 1000, // 8 hours
     },
   })
 );
+
+// ── CSRF protection ───────────────────────────────────────────────────────────
+// Skip CSRF in test environment
+if (process.env.NODE_ENV !== 'test') {
+  // Apply CSRF to all routes except SSE (which is a persistent connection)
+  const csrfProtection = csrf({ cookie: false });
+  app.use((req, res, next) => {
+    // Skip CSRF for SSE endpoint (long-lived connection)
+    if (req.path === '/dashboard/events') {
+      return next();
+    }
+    csrfProtection(req, res, next);
+  });
+
+  // CSRF error handler - provide friendly error message
+  app.use((err, req, res, next) => {
+    if (err.code === 'EBADCSRFTOKEN') {
+      console.warn('[CSRF] Invalid token from IP:', req.ip, 'Path:', req.path);
+      if (req.accepts('json')) {
+        return res.status(403).json({ error: 'Token CSRF tidak valid. Silakan refresh halaman dan coba lagi.' });
+      }
+      return res.status(403).render('error', {
+        status: 403,
+        message: 'Token keamanan tidak valid. Silakan refresh halaman dan coba lagi.',
+      });
+    }
+    next(err);
+  });
+}
+
+// Make CSRF token available to all views
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken ? req.csrfToken() : '';
+  next();
+});
 
 // ── Static files ──────────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, '..', 'public')));
